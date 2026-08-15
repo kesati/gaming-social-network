@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/authMiddleware.js");
 const router = express.Router();
 
 router.get("/", authMiddleware, getMyProfile);
-router.put("/", authMiddleware, updateMyProfile);
+router.patch("/", authMiddleware, updateMyProfile);
 
 
 module.exports = router;
