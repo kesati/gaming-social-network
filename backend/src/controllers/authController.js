@@ -6,7 +6,7 @@ const { User } = require("../models/index.js");
 const register = async (req, res) => {
     try {
 
-        const { username, email, password } = req.body;
+        const { username, email, password } = req.body || {};
 
         if (!email || !username || !password) {
             return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin đăng nhập!" });
@@ -66,7 +66,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
 
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
 
         if (!email || !password) {
             return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });

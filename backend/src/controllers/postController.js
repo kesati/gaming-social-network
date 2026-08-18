@@ -5,11 +5,7 @@ const { Op } = require("sequelize");
 const createPost = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { game_id, content, image_url } = req.body;
-
-        if (!game_id) {
-            return res.status(400).json({ message: "Vui lòng chọn game để phân loại bài viết" });
-        }
+        const { game_id, content, image_url } = req.body || {};
 
         if (!content || content.trim().length === 0) {
             return res.status(400).json({ message: "Nội dung không được để trống" });
@@ -120,7 +116,7 @@ const getPostById = async (req, res) => {
             },
         });
 
-        if (!post) {
+        if (!post ||     post.status === "deleted") {
             return res.status(404).json({
                 message: "Bài viết không tồn tại"
             });
@@ -143,11 +139,11 @@ const updatePost = async (req, res) => {
     try {
         const { postId } = req.params;
         const userId = req.user.id;
-        const { content, image_url } = req.body;
+        const { content, image_url } = req.body || {} ;
 
         const post = await Post.findByPk(postId);
 
-        if (!post) {
+        if (!post || post.status === "deleted") {
             return res.status(404).json({ message: "Không tìm thấy bài viết!" });
         }
 

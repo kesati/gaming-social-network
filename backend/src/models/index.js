@@ -4,7 +4,9 @@ const Game = require("./Game");
 const Post = require("./Post");
 const Reaction = require("./Reaction");
 const Comment = require("./Comment");
-
+const Room = require("./Room");
+const RoomMember = require("./RoomMember");
+const Message  = require("./Message");
 
 // User - UserProfile
 User.hasOne(UserProfile, {
@@ -83,7 +85,73 @@ Comment.belongsTo(Post, {
     as: "post",
 });
 
+// User - Room
+User.hasMany(Room, {
+    foreignKey: "host_id",
+    as: "hostedRooms",
+});
+
+Room.belongsTo(User, {
+    foreignKey: "host_id",
+    as: "host",
+});
+
+// Game - Room
+Game.hasMany(Room, {
+    foreignKey: "game_id",
+    as: "rooms",
+});
+
+Room.belongsTo(Game, {
+    foreignKey: "game_id",
+    as: "game",
+});
+
+// Room - RoomMember
+Room.hasMany(RoomMember, {
+    foreignKey: "room_id",
+    as: "members",
+});
+
+RoomMember.belongsTo(Room, {
+    foreignKey: "room_id",
+    as: "room",
+});
+
+// User - RoomMember
+User.hasMany(RoomMember, {
+    foreignKey: "user_id",
+    as: "roomMemberships",
+});
+
+RoomMember.belongsTo(User, {
+    foreignKey: "user_id",
+    as: "user",
+});
+
+// Room - Message
+Room.hasMany(Message, {
+    foreignKey: "room_id",
+    as: "messages",
+});
+
+Message.belongsTo(Room, {
+    foreignKey: "room_id",
+    as: "room",
+});
+
+// User - Message
+User.hasMany(Message, {
+    foreignKey: "sender_id",
+    as: "messages",
+});
+
+Message.belongsTo(User, {
+    foreignKey: "sender_id",
+    as: "sender",
+});
+
 
 module.exports = {
-    User, UserProfile, Game, Post, Reaction, Comment
+    User, UserProfile, Game, Post, Reaction, Comment, Room, RoomMember, Message
 };

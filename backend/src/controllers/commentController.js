@@ -5,7 +5,7 @@ const createComment = async (req, res) => {
     try {
         const userId = req.user.id;
         const { postId } = req.params;
-        const { content } = req.body;
+        const { content } = req.body || {};
 
 
         if (!content || content.trim() === 0) {
@@ -53,7 +53,7 @@ const getComment = async (req, res) => {
             return res.status(404).json({ message: "Bài viết không tồn tại" });
         }
 
-        const comments = Comment.findAll({
+        const comments = await Comment.findAll({
             where: { post_id: postId},
             include: [["created_at", "ASC"]],
             include: [
@@ -72,6 +72,7 @@ const getComment = async (req, res) => {
             ]
         });
 
+
         return res.status(200).json({
             total: comments.length,
             comments
@@ -89,6 +90,12 @@ const deleteComment = async (req, res) => {
     try {
         const { commentId, postId } = req.params;
         const userId = req.user.id;
+
+        const post = await Post.findByPk(postId);
+
+        if (!post || post.status === "deleted") {
+            return res.status(404).json({ message: "Bài viết không tồn tại" });
+        }
 
         const comment = await Comment.findOne({
             where: {

@@ -13,6 +13,9 @@ app.use("/api/game", require("./routes/gameRoutes.js"));
 app.use("/api/posts", require("./routes/postRoutes.js"));
 app.use("/api/posts/:postId", require("./routes/reactionRoutes.js"));
 app.use("/api/post/:postId/comments", require("./routes/commentRoutes.js"));
+app.use("/api/room", require("./routes/roomRoutes.js"));
+
+
 
 app.get('/', (req, res) => {
     res.send("Gaming Social Network API is running");
