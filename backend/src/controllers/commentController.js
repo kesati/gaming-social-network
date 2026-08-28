@@ -8,12 +8,12 @@ const createComment = async (req, res) => {
         const { content } = req.body || {};
 
 
-        if (!content || content.trim() === 0) {
+        if (!content || !content.trim()) {
             return res.status(404).json({ message: "Vui lòng điền nội dung!" });
         }
 
-        if (content.lenght > 500) {
-            return res.status(404).json({ message: "Nội dung tối đa 500 ký tự" });
+        if (content.length > 500) {
+            return res.status(400).json({ message: "Nội dung tối đa 500 ký tự" });
         }
 
         const post = await Post.findByPk(postId);
@@ -28,9 +28,27 @@ const createComment = async (req, res) => {
             content,
         });
 
+        const comment = await Comment.findByPk(newComment.id, {
+            include: [
+                {
+                    model: User,
+                    as: "author",
+                    attributes: ["id", "username"],
+                    include: [
+                        {
+                            model: UserProfile,
+                            as: "profile",
+                            attributes: ["id", "avatar_url"]
+                        }
+                    ]
+                }
+            ]
+        });
+
+
         return res.status(201).json({
             message: 'Đã gửi bình luận!',
-            comment: newComment
+            comment: comment
         });
 
     } catch (error) {
@@ -55,7 +73,7 @@ const getComment = async (req, res) => {
 
         const comments = await Comment.findAll({
             where: { post_id: postId},
-            include: [["created_at", "ASC"]],
+            order: [["created_at", "ASC"]],
             include: [
                 {
                     model: User,

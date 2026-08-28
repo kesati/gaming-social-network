@@ -28,9 +28,24 @@ const createPost = async (req, res) => {
             image_url,
         });
 
-        return res.status(201).json({
+        const fullPost = await Post.findByPk(newPost.id, {
+            include: [
+                {
+                    model: User,
+                    as: 'author', 
+                    attributes: ['username']
+                },
+                {
+                    model: Game,
+                    as: 'game',
+                    attributes: ['name'] 
+                }
+            ]
+        });
+
+        return res.status(201).json({   
             message: "Đăng bài thành công",
-            post: newPost
+            post: fullPost
         });
 
     } catch (error) {
@@ -46,7 +61,7 @@ const createPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
     try {
-        const post = await Post.findAll({
+        const posts = await Post.findAll({
             where: { status: "visible" },
             order: [["created_at", "DESC"]],
             include: [
@@ -61,11 +76,27 @@ const getAllPosts = async (req, res) => {
                     attributes: ["id", "name"],
                 },
             ],
+            attributes: {
+                include: [
+                    [
+                        sequelize.literal(
+                            `(SELECT COUNT(*) FROM reactions WHERE reactions.post_id = Post.id)`
+                        ),
+                        "reactionCount",
+                    ],
+                    [
+                        sequelize.literal(
+                            `(SELECT COUNT(*) FROM comments WHERE comments.post_id = Post.id)`
+                        ),
+                        "commentCount",
+                    ],
+                ],
+            },
         });
 
         return res.status(200).json({
-            total: post.length,
-            post
+            total: posts.length,
+            posts
         });
 
     } catch (error) {
@@ -116,7 +147,7 @@ const getPostById = async (req, res) => {
             },
         });
 
-        if (!post ||     post.status === "deleted") {
+        if (!post || post.status === "deleted") {
             return res.status(404).json({
                 message: "Bài viết không tồn tại"
             });

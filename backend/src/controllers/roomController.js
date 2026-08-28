@@ -1,6 +1,33 @@
 const sequelize = require("../config/db.js");
 const { Game, Room, RoomMember } = require("../models/index.js");
 
+const getRooms = async (req, res) => {
+    try {
+        const rooms = await Room.findAll({
+            where: {
+                status: "open"
+            },
+            include: [
+                {
+                    model: Game,
+                    attributes: ["id", "name"]
+                }
+            ],
+            order: [["created_at", "DESC"]]
+        });
+
+        return res.status(200).json({
+            rooms
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Lỗi server"
+        });
+    }
+};
 
 const creatRoom = async (req, res) => {
     const t = await sequelize.transaction();
@@ -118,5 +145,5 @@ const updateRoom = async (req, res) => {
 
 
 module.exports = {
-    creatRoom, updateRoom
+    getRooms, creatRoom, updateRoom
 }
